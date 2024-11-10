@@ -1,0 +1,114 @@
+.OrganizationSidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: fit-content;
+    background-color: #0d2a89;
+    transition: 0.2s all ease-in;
+    padding: 1rem;
+    color: #fff;
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+
+
+.SidebarCreate_Org {
+    background-color: rgba(219, 219, 219, 0.603);
+    border-radius: 10px;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.OrganizationListItems {
+    height: auto;
+}
+
+.CreategroupsSidebarBtnContainer {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.CloseIconSidebar {
+    display: none;
+}
+
+.DesktopSidebarOpenAndCloseBtn {
+    position: absolute;
+    color: white;
+    top: 7rem;
+    border-radius: 5px;
+    cursor: pointer;
+    left: 12.3rem;
+    z-index: 9;
+    /*  */
+    position: absolute;
+    left: 243px;
+    background-color: #0055ff;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.3s ease;
+}
+
+.HandleSideBarVisibility {
+    display: none;
+    transition: left 1s ease-in-out;
+}
+
+.deactived {
+    left: -15px;
+}
+
+
+@media (max-width:640px) {
+    .CloseIconSidebar {
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .OrganizationSidebar {
+        position: fixed;
+        width: 50%;
+    }
+
+    .CreategroupsSidebar {
+        width: 100%;
+    }
+
+    .SideBarActiveClass {
+        left: -100%;
+    }
+
+    .DesktopSidebarOpenAndCloseBtn {
+        display: none;
+    }
+}
+
+
+
+@media (min-width: 1024px) {
+    .DesktopSidebarOpenAndCloseBtn {
+        left: 290px;
+    }
+
+    .deactived {
+        left: -15px;
+    }
+}

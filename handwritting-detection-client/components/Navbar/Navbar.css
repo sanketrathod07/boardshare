@@ -1,0 +1,122 @@
+.NavbarMainContainer {
+    background: #ffffff;
+    padding: 0.8rem;
+}
+
+
+.NavbarMainSubContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100rem;
+    margin: auto;
+}
+
+.NavbarMainContainerMenu {
+    display: flex;
+    align-items: center;
+}
+
+.NavbarMainContainerMenuItems {
+    margin: 0.5rem 3vw 0.5rem 0rem;
+    color: var(--font-Color);
+    font-weight: 500;
+    display: flex;
+    cursor: pointer;
+    position: relative;
+    align-items: center;
+}
+
+.NavbarMainContainerMenuItems::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2.3px;
+    border-radius: 40px;
+    background-color: rgb(151, 40, 255);
+    transition: width 0.25s ease-out;
+}
+
+.NavbarMainContainerMenuItems:hover::before {
+    width: 100%;
+}
+
+
+
+/* Search iNput */
+
+.NavbarInputSearchIcon {
+    position: relative;
+    display: flex;
+    /* top: 9px; */
+    left: 39px;
+    align-items: center;
+    color: #262626b0;
+}
+
+.site-search {
+    flex-grow: 1;
+    display: flex;
+}
+
+.search-input,
+.search-btn {
+    border: 1px solid #f0f0f0b0;
+}
+
+.search-input {
+    flex-basis: 60rem;
+    height: 2.5rem;
+    min-width: 10rem;
+    border-radius: 10rem;
+    max-width: 50rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    padding-left: 2.6rem;
+    color: #d1d1d1;
+}
+
+.search-input::-webkit-input-placeholder {
+    color: #747474;
+
+}
+
+.search-input:-ms-input-placeholder {
+    color: #747474;
+}
+
+.search-input::-ms-input-placeholder {
+    color: #747474;
+}
+
+.search-input::placeholder {
+    color: #747474;
+}
+
+
+
+
+.MobileSidebarToogleBtn {
+    display: none;
+    cursor: pointer;
+}
+
+/* Write Max for lower than 640px  */
+
+@media (max-width:640px) {
+    .NavbarMainContainerMenu {
+        display: none;
+    }
+
+    .MobileSidebarToogleBtn {
+        display: block;
+    }
+}
+
+@media (max-width:890px) {
+    .site-search{
+        display: none;
+    }
+}
