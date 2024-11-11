@@ -141,7 +141,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             try {
                 const pngDataUrl = canvas.toDataURL("image/png");
 
-                const response = await axios.post('http://localhost:8900/calculate', {
+                const response = await axios.post('https://boardshare.onrender.com/calculate', {
                     image: pngDataUrl,
                     dict_of_vars: dictOfVars
                 });
@@ -240,15 +240,19 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
 
         const liveLayers = storage.get("layers");
 
-        for (const id of self.presence.selection) {
-            const layer = liveLayers.get(id);
+        if (Array.isArray(self.presence.selection)) {
+            for (const id of self.presence.selection) {
+                const layer = liveLayers.get(id);
 
-            if (layer) {
-                layer.update({
-                    x: layer.get("x") + offset.x,
-                    y: layer.get("y") + offset.y,
-                });
+                if (layer) {
+                    layer.update({
+                        x: layer.get("x") + offset.x,
+                        y: layer.get("y") + offset.y,
+                    });
+                }
             }
+        } else {
+            console.error("self.presence.selection is not an array.");
         }
 
         setCanvasState({ mode: CanvasMode.Translating, current: point });
