@@ -136,7 +136,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             try {
                 const pngDataUrl = canvas.toDataURL("image/png");
 
-                const response = await axios.post('http://localhost:8900/calculate', {
+                const response = await axios.post('https://boardsharebackend.onrender.com/calculate', {
                     image: pngDataUrl,
                     dict_of_vars: dictOfVars
                 });
