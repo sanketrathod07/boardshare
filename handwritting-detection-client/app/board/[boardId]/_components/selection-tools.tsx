@@ -4,12 +4,17 @@ import { memo } from "react";
 import { BringToFront, SendToBack, Trash2 } from "lucide-react";
 import { Hint } from "../../../../components/hint";
 import { Button } from "../../../../components/UI/Button";
-import { Camera, Color } from "../../../../types/canvas";
+import { Camera, Color, Layer } from "../../../../types/canvas";
 import { useSelf } from "../../../../liveblocks.config";
 import { useSelectionBounds } from "../../../../hooks/use-selection-bounds";
 import { ColorPicker } from "./color-picker";
 import { useMutation } from "@liveblocks/react";
 import { useDeleteLayers } from "../../../../hooks/use-delete-layer";
+import {
+    LiveObject,
+    LiveList,
+    LiveMap
+} from "@liveblocks/client";
 
 interface SelectionToolsProps {
     camera: Camera
@@ -22,11 +27,11 @@ export const SelectionTools = memo(({
 }: SelectionToolsProps) => {
     const selection = useSelf((me) => me.presence.selection);
 
-    
+
     const moveToFront = useMutation((
         { storage }
     ) => {
-        const liveLayersIds = storage.get("layerIds");
+        const liveLayersIds = storage.get("layerIds") as LiveList<string>;
         const indices: number[] = [];
 
         const arr = liveLayersIds.toImmutable();
@@ -48,7 +53,7 @@ export const SelectionTools = memo(({
     const moveToBack = useMutation((
         { storage }
     ) => {
-        const liveLayersIds = storage.get("layerIds");
+        const liveLayersIds = storage.get("layerIds") as LiveList<string>;
         const indices: number[] = [];
 
         const arr = liveLayersIds.toImmutable();
@@ -67,7 +72,7 @@ export const SelectionTools = memo(({
         { storage },
         fill: Color,
     ) => {
-        const liveLayers = storage.get("layers");
+        const liveLayers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
         setLastUsedColor(fill);
 
         selection.forEach((id) => {
@@ -77,7 +82,7 @@ export const SelectionTools = memo(({
 
     const deleteLayers = useDeleteLayers();
 
-    const selectionBounds = useSelectionBounds();
+    const selectionBounds = useSelectionBounds() as { x: number; y: number; width: number; height: number };
 
     if (!selectionBounds) {
         return null;
@@ -100,7 +105,13 @@ export const SelectionTools = memo(({
                 onChange={setFill}
             />
             <div className="flex flex-col gap-y-0.5">
-                <Hint label="Bring to front">
+                <Hint
+                    label="Bring to front"
+                    side="top"  // Add a value for 'side'
+                    align="center"  // Add a value for 'align'
+                    sideOffset={8}  // Add a value for 'sideOffset'
+                    alignOffset={4}  // Add a value for 'alignOffset'
+                >
                     <Button
                         onClick={moveToFront}
                         variant="board"
@@ -109,7 +120,13 @@ export const SelectionTools = memo(({
                         <BringToFront />
                     </Button>
                 </Hint>
-                <Hint label="Bring to Back" side="bottom">
+                <Hint
+                    label="Bring to Back"
+                    side="bottom"
+                    align="center"  // Add a value for 'align'
+                    sideOffset={8}  // Add a value for 'sideOffset'
+                    alignOffset={4}
+                >
                     <Button
                         onClick={moveToBack}
                         variant="board"

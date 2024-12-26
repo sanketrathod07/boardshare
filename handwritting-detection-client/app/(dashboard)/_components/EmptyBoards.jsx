@@ -20,10 +20,10 @@ export const EmptyBoards = () => {
             orgId: organization.id,
             title: "Untitled"
         })
-        .then((id) => {
-            toast.success("Board Created!")
-        })
-        .catch(() => toast.error("Failed to create board"))
+            .then((id) => {
+                toast.success("Board Created!")
+            })
+            .catch(() => toast.error("Failed to create board"))
     }
 
 
@@ -36,6 +36,7 @@ export const EmptyBoards = () => {
                 width={440}
                 alt="Empty"
                 draggable="false"
+                priority
             />
             <h2 className="text-2xl font-semibold mt-6">
                 Create your first board!

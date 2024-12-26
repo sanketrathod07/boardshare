@@ -11,6 +11,7 @@ export const Loading = () => {
                 width={420}
                 height={420}
                 className="animate-pulse duration-350"
+                priority
             />
 
         </div>

@@ -20,7 +20,6 @@ import {
 } from '../../../../liveblocks.config';
 import {
     LiveObject,
-    createClient,
     LiveList,
     LiveMap
 } from "@liveblocks/client";
@@ -60,10 +59,6 @@ const MAX_LAYERS = 100;
 
 interface CanvasProps {
     boardId: string;
-}
-
-interface Presence {
-    selection: string[];
 }
 
 
@@ -111,7 +106,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
 
     // ********************CANVAS PREDICTION CODE **********************
 
-    const svgRef = useRef(null);
+    const svgRef = useRef<SVGSVGElement | null>(null);
     const [dictOfVars, setDictOfVars] = useState({})
 
 
@@ -141,7 +136,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             try {
                 const pngDataUrl = canvas.toDataURL("image/png");
 
-                const response = await axios.post('https://boardshare.onrender.com/calculate', {
+                const response = await axios.post('http://localhost:8900/calculate', {
                     image: pngDataUrl,
                     dict_of_vars: dictOfVars
                 });
@@ -173,13 +168,21 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             }
         };
 
-        img.onerror = (error) => {
+        img.onerror = (error: Event) => {
             console.error("Error loading SVG as image:", error);
             toast.update(toastId, { render: "Error loading SVG", type: "error", isLoading: false, autoClose: 3000 });
         };
 
         img.src = url;
     }, [dictOfVars]);
+
+    useEffect(() => {
+        // Check if all layers have been deleted
+        if (layerIds.length === 0) {
+            setDictOfVars({});
+            setResultsArray([]);
+        }
+    }, [layerIds]);
 
 
     // const deletePencile = useMutation(({ setMyPresence }) => {
@@ -188,7 +191,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
 
     // console.log("pencilDraft", pencilDraft)
 
-    const debouncedConvertSvgToPng = useMemo(() => debounce(convertSvgToPng, 500), [convertSvgToPng]);
+    const debouncedConvertSvgToPng = useMemo(() => debounce(convertSvgToPng, 500), [convertSvgToPng]) as unknown as typeof convertSvgToPng;
 
 
 
@@ -238,12 +241,12 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             y: point.y - canvasState.current.y,
         }
 
-        const liveLayers = storage.get("layers");
+        const liveLayers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
+        const selection = self.presence.selection as string[];
 
-        if (Array.isArray(self.presence.selection)) {
-            for (const id of self.presence.selection) {
+        if (Array.isArray(selection)) {
+            for (const id of selection) {
                 const layer = liveLayers.get(id);
-
                 if (layer) {
                     layer.update({
                         x: layer.get("x") + offset.x,
@@ -260,35 +263,42 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
         canvasState
     ])
 
-    const unselectLayers = useMutation((
-        { self, setMyPresence }
-    ) => {
-        if (self.presence.selection.length > 0) {
+    const unselectLayers = useMutation(({ self, setMyPresence }) => {
+        const selection = self.presence.selection as string[];
+        if (selection.length > 0) {
             setMyPresence({ selection: [] }, { addToHistory: true });
         }
-    }, [])
+    }, []);
 
-    const updateSelectionNet = useMutation((
-        { storage, setMyPresence },
-        current: Point,
-        origin: Point,
-    ) => {
-        const layers = storage.get("layers").toImmutable();
-        setCanvasState({
-            mode: CanvasMode.SelectionNet,
-            origin,
-            current,
-        });
 
-        const ids = findIntersectingLayersWithRectangle(
-            layerIds,
-            layers,
-            origin,
-            current,
-        )
+    const updateSelectionNet = useMutation(
+        ({ storage, setMyPresence }, current: Point, origin: Point) => {
+            const layers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
 
-        setMyPresence({ selection: ids })
-    }, [layerIds]);
+            // Transform LiveObject<Layer> to Layer
+            const immutableLayers = new Map<string, Layer>();
+            layers.forEach((value, key) => {
+                immutableLayers.set(key, value.toObject()); // Use toObject or an equivalent method
+            });
+
+            setCanvasState({
+                mode: CanvasMode.SelectionNet,
+                origin,
+                current,
+            });
+
+            const ids = findIntersectingLayersWithRectangle(
+                layerIds,
+                immutableLayers,
+                origin,
+                current,
+            );
+
+            setMyPresence({ selection: ids });
+        },
+        [layerIds]
+    );
+
 
     const startMultiSelection = useCallback((
         current: Point,
@@ -305,32 +315,32 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
         }
     }, [])
 
-    const continueDrawing = useMutation((
-        { self, setMyPresence },
-        point: Point,
-        e: React.PointerEvent
-    ) => {
 
-        const { pencilDraft } = self.presence;
+    const continueDrawing = useMutation(
+        ({ self, setMyPresence }, point: Point, e: React.PointerEvent) => {
+            const pencilDraft = self.presence.pencilDraft as number[][] | null;
 
-        if (
-            canvasState.mode !== CanvasMode.Pencil ||
-            e.buttons !== 1 ||
-            pencilDraft == null
-        ) {
-            return;
-        }
+            if (
+                canvasState.mode !== CanvasMode.Pencil ||
+                e.buttons !== 1 ||
+                pencilDraft == null
+            ) {
+                return;
+            }
 
-        setMyPresence({
-            cursor: point,
-            pencilDraft:
-                pencilDraft.length === 1 &&
-                    pencilDraft[0][0] === point.x &&
-                    pencilDraft[0][1] === point.y
-                    ? pencilDraft
-                    : [...pencilDraft, [point.x, point.y, e.pressure]],
-        });
-    }, [canvasState.mode]);
+            setMyPresence({
+                cursor: point,
+                pencilDraft:
+                    pencilDraft.length === 1 &&
+                        pencilDraft[0][0] === point.x &&
+                        pencilDraft[0][1] === point.y
+                        ? pencilDraft
+                        : [...pencilDraft, [point.x, point.y, e.pressure]],
+            });
+        },
+        [canvasState.mode]
+    );
+
 
 
 
@@ -338,8 +348,8 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
     const insertPath = useMutation((
         { storage, self, setMyPresence }
     ) => {
-        const liveLayers = storage.get("layers");
-        const { pencilDraft } = self.presence;
+        const liveLayers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
+        const pencilDraft = self.presence.pencilDraft as number[][] | null;
 
         if (
             pencilDraft == null ||
@@ -364,7 +374,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
 
 
         // Add the layer ID to the `layerIds` list
-        const liveLayerIds = storage.get("layerIds");
+        const liveLayerIds = storage.get("layerIds") as LiveList<string>;
         liveLayerIds.push(id); // Ensure the ID is added to the layer list
 
         setMyPresence({ pencilDraft: null });
@@ -398,7 +408,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             point,
         );
 
-        const liveLayers = storage.get("layers");
+        const liveLayers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
         const layer = liveLayers.get(self.presence.selection[0])
 
         if (layer) {
@@ -593,7 +603,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
     // ********************FLOATING ARRAY SHOWCASE **********************
 
     const ArrayShowcase = React.memo(() => {
-        const handleRemove = (index) => {
+        const handleRemove = (index: number) => {
             const element = document.getElementById(`result-${index}`);
             if (element) {
                 element.classList.add('fade-out');

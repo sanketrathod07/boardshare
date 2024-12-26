@@ -40,6 +40,7 @@ const board_list = ({ orgId, query }) => {
           height={440}
           width={440}
           alt="Empty"
+          priority
         />
         <h2 className="text-2xl font-semibold mt-6">No Favorite Boards</h2>
         <p className="text-muted-forground textg-sm mt-2">

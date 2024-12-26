@@ -18,6 +18,7 @@ const emptyOrg = () => {
                 height={700}
                 width={700}
                 draggable="false"
+                priority
             />
             <h2 className="text-2xl font-semibold mt-6">
                 Welcome to Board

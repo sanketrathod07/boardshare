@@ -58,6 +58,7 @@ export const BoardCard = ({
                         alt={title}
                         fill
                         className="object-fit overflow-hidden transition-transform duration-300 transform hover:scale-105"
+                        priority
                     />
                     <Overlay />
                     <Actions id={id} title={title} side="right">

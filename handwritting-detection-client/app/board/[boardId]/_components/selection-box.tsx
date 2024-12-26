@@ -24,7 +24,8 @@ export const SelectionBox = memo(({
         soleLayerId && root.layers.get(soleLayerId)?.type !== LayerType.Path
     )
 
-    const bounds = useSelectionBounds();
+    const bounds = useSelectionBounds() as { x: number; y: number; width: number; height: number };
+
 
     if (!bounds) {
         return null

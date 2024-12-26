@@ -42,6 +42,7 @@ export const Info = ({ boardId }) => {
                             alt="BoardShare Logo"
                             height={40}
                             width={40}
+                            priority
                         />
                     </Link>
                 </Button>
