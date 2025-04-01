@@ -1,9 +1,9 @@
 "use client";
 
-import { memo } from "react";
+import React, { memo } from "react";
 import { BringToFront, SendToBack, Trash2 } from "lucide-react";
 import { Hint } from "../../../../components/hint";
-import { Button } from "../../../../components/UI/Button";
+// import { Button } from "../../../../components/UI/Button";
 import { Camera, Color, Layer } from "../../../../types/canvas";
 import { useSelf } from "../../../../liveblocks.config";
 import { useSelectionBounds } from "../../../../hooks/use-selection-bounds";
@@ -20,6 +20,28 @@ interface SelectionToolsProps {
     camera: Camera
     setLastUsedColor: (color: Color) => void;
 };
+interface ButtonProps {
+    variant: string;
+    size: string;
+    onClick: () => void;
+    icon?: React.ReactNode; // React.ReactNode allows JSX elements
+    // ... other props
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+    return (
+        <button
+            ref={ref}
+            onClick={props.onClick}
+            className={`variant-<span class="math-inline">\{props\.variant\} size\-</span>{props.size}`} // example css class.
+        >
+            {props.icon}
+        </button>
+    )
+});
+
+export { Button };
+
 
 export const SelectionTools = memo(({
     camera,
@@ -113,11 +135,11 @@ export const SelectionTools = memo(({
                     alignOffset={4}  // Add a value for 'alignOffset'
                 >
                     <Button
-                        onClick={moveToFront}
                         variant="board"
                         size="icon"
+                        onClick={moveToFront}
+                        icon={<BringToFront />}
                     >
-                        <BringToFront />
                     </Button>
                 </Hint>
                 <Hint
@@ -128,11 +150,11 @@ export const SelectionTools = memo(({
                     alignOffset={4}
                 >
                     <Button
-                        onClick={moveToBack}
                         variant="board"
                         size="icon"
+                        onClick={moveToBack}
+                        icon={<SendToBack />}
                     >
-                        <SendToBack />
                     </Button>
                 </Hint>
             </div>
@@ -141,13 +163,18 @@ export const SelectionTools = memo(({
             <div
                 className="flex items-center pl-2 ml-2 border-l border-neutral-200"
             >
-                <Hint label="Delete">
+                <Hint label="Delete"
+                    side="top"  // Add a value for 'side'
+                    align="center"  // Add a value for 'align'
+                    sideOffset={8}  // Add a value for 'sideOffset'
+                    alignOffset={4}
+                >
                     <Button
                         variant="board"
                         size="icon"
                         onClick={deleteLayers}
+                        icon={<Trash2 />}
                     >
-                        <Trash2 />
                     </Button>
                 </Hint>
             </div>

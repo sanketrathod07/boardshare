@@ -115,65 +115,85 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
     const convertSvgToPng = useCallback(async () => {
         const toastId = toast.loading("Processing image...");
         const svgElement = svgRef.current;
-        const svgData = new XMLSerializer().serializeToString(svgElement);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const svgSize = svgElement.getBoundingClientRect();
-        canvas.width = svgSize.width;
-        canvas.height = svgSize.height;
+        if (svgElement) {
+            const svgData = new XMLSerializer().serializeToString(svgElement!); // Non-null assertion
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
 
-        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-        const url = URL.createObjectURL(svgBlob);
+            if (ctx) { // Check if ctx is not null
+                const svgSize = svgElement.getBoundingClientRect();
+                canvas.width = svgSize.width;
+                canvas.height = svgSize.height;
 
-        const img = new Image();
-        img.crossOrigin = "anonymous";
+                const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+                const url = URL.createObjectURL(svgBlob);
 
+                const img = new Image();
+                img.crossOrigin = "anonymous";
 
-        img.onload = async () => {
-            ctx.drawImage(img, 0, 0);
-            URL.revokeObjectURL(url);
+                img.onload = async () => {
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
 
-            try {
-                const pngDataUrl = canvas.toDataURL("image/png");
+                    try {
+                        const pngDataUrl = canvas.toDataURL("image/png");
 
-                const response = await axios.post('https://boardsharebackend.onrender.com/calculate', {
-                    image: pngDataUrl,
-                    dict_of_vars: dictOfVars
-                });
-
-                const resp = await response.data;
-
-                const newResults = resp.data.map((data: Response) => ({
-                    expression: data.expr,
-                    answer: data.result
-                }));
-                // console.log("newResults", newResults)
-
-                setResultsArray((prevResults) => [...prevResults, ...newResults]);
-
-                resp.data.forEach((data: Response) => {
-                    if (data.assign === true) {
-                        setDictOfVars({
-                            ...dictOfVars,
-                            [data.expr]: data.result
+                        const response = await axios.post('http://localhost:8900/calculate', {
+                            image: pngDataUrl,
+                            dict_of_vars: dictOfVars
                         });
+
+                        const resp = await response.data;
+
+                        const newResults = resp.data.map((data: Response) => ({
+                            expression: data.expr,
+                            answer: data.result
+                        }));
+
+                        // console.log("newResults", newResults)
+
+                        setResultsArray((prevResults) => [...prevResults, ...newResults]);
+
+                        resp.data.forEach((data: Response) => {
+                            if (data.assign === true) {
+                                setDictOfVars({
+                                    ...dictOfVars,
+                                    [data.expr]: data.result
+                                });
+                            }
+                        });
+
+                        toast.update(toastId, { render: "Image processed successfully!", type: "success", isLoading: false, autoClose: 500 });
+
+                    } catch (error) {
+                        console.error("Error sending image to server:", error);
+                        toast.update(toastId, { render: "Failed to process image", type: "error", isLoading: false, autoClose: 500 });
                     }
-                });
+                };
 
-                toast.update(toastId, { render: "Image processed successfully!", type: "success", isLoading: false, autoClose: 500 });
+                img.onerror = (error: Event | string) => {
+                    console.error("Error loading SVG as image:", error);
+                    toast.update(toastId, { render: "Error loading SVG", type: "error", isLoading: false, autoClose: 3000 });
+                };
 
-            } catch (error) {
-                console.error("Error sending image to server:", error);
-                toast.update(toastId, { render: "Failed to process image", type: "error", isLoading: false, autoClose: 500 });
+                img.src = url;
             }
-        };
+            const svgSize = svgElement.getBoundingClientRect();
+            canvas.width = svgSize.width;
+            canvas.height = svgSize.height;
 
-        img.onerror = (error: Event) => {
-            console.error("Error loading SVG as image:", error);
-            toast.update(toastId, { render: "Error loading SVG", type: "error", isLoading: false, autoClose: 3000 });
-        };
+            const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(svgBlob);
 
-        img.src = url;
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+
+
+
+        } else {
+            toast.error("Error with the Canvas, please refresh the page");
+        }
+
     }, [dictOfVars]);
 
     useEffect(() => {
@@ -193,10 +213,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
 
     const debouncedConvertSvgToPng = useMemo(() => debounce(convertSvgToPng, 500), [convertSvgToPng]) as unknown as typeof convertSvgToPng;
 
-
-
     // ********************CANVAS PREDICTION CODE **********************
-
 
     const insertLayer = useMutation(
         ({ storage, setMyPresence },
@@ -217,7 +234,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
                 x: position.x,
                 y: position.y,
                 height: 100,
-                width: 100,
+                width: 200,
                 fill: lastUsedColor,
             });
 
@@ -402,18 +419,31 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
             return;
         }
 
-        const bounds = resizeBounds(
-            canvasState.initialBounds,
-            canvasState.corner,
-            point,
-        );
+        if (!self.presence.selection || !Array.isArray(self.presence.selection) || self.presence.selection.length === 0) {
+            // Handle the case where self.presence.selection is null, undefined, or an empty array.
+            console.error("self.presence.selection is invalid.");
+            return;
+        }
 
-        const liveLayers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
-        const layer = liveLayers.get(self.presence.selection[0])
+        // Type guard: Explicitly check if it's an array of strings
+        if (self.presence.selection.every((item) => typeof item === 'string')) {
 
-        if (layer) {
-            layer.update(bounds);
-        };
+            const bounds = resizeBounds(
+                canvasState.initialBounds,
+                canvasState.corner,
+                point,
+            );
+
+            const liveLayers = storage.get("layers") as LiveMap<string, LiveObject<Layer>>;
+            const layer = liveLayers.get(self.presence.selection[0]);
+
+            if (layer) {
+                layer.update(bounds);
+            }
+        } else {
+            console.error("self.presence.selection is not an array of strings.");
+            return;
+        }
     }, [canvasState])
 
     const onResizeHandlePointerDown = useCallback((
@@ -537,7 +567,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
 
             const point = pointerEventToCanvasPoint(e, camera);
 
-            if (!Array.isArray(self.presence.selection) || !self.presence.selection.includes(layerId)) {
+            if (!self.presence.selection || !Array.isArray(self.presence.selection) || !self.presence.selection.includes(layerId)) {
                 setMyPresence({ selection: [layerId] }, { addToHistory: true });
             }
             setCanvasState({ mode: CanvasMode.Translating, current: point });
@@ -705,15 +735,14 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
                     <SelectionBox
                         onResizeHandlePointerDown={onResizeHandlePointerDown}
                     />
-                    {canvasState.mode === CanvasMode.SelectionNet && canvasState.current !== null && (
+                    {canvasState.mode === CanvasMode.SelectionNet && canvasState.current && (
                         <rect
                             style={{ fill: 'rgba(59, 130, 246, 0.05)', stroke: '#3b82f6', strokeWidth: 1 }}
-                            x={Math.min(canvasState.origin.x, canvasState.current.x)}
-                            y={Math.min(canvasState.origin.y, canvasState.current.y)}
-                            width={Math.abs(canvasState.origin.x - canvasState.current.x)}
-                            height={Math.abs(canvasState.origin.y - canvasState.current.y)}
+                            x={Math.min(canvasState.origin.x, canvasState.current?.x || 0)}
+                            y={Math.min(canvasState.origin.y, canvasState.current?.y || 0)}
+                            width={Math.abs(canvasState.origin.x - (canvasState.current?.x || 0))}
+                            height={Math.abs(canvasState.origin.y - (canvasState.current?.y || 0))}
                         />
-
                     )}
                     <CursorsPresence />
                     {pencilDraft != null && pencilDraft.length > 0 && (

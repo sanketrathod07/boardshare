@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }) => {
 
     return (
         <main className="h-full w-full flex">
-            <OrgSidebar handleSidebar={handleSidebar} isOpen={isOpen}/>
+            <OrgSidebar handleSidebar={handleSidebar} isOpen={isOpen} />
             <div className=" h-full w-full relative">
                 <div className="h-full flex-1">
                     <Navbar handleSidebar={handleSidebar} />
