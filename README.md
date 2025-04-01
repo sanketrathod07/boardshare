@@ -52,14 +52,13 @@ BoardShare is an advanced real-time collaborative whiteboard application with ha
 - Supports multiple layers to separate user strokes.
 - Live synchronization of canvas state using **Liveblocks**.
 
-#### Placeholder for Frontend UI Screenshot
+#### Frontend UI Screenshots
 
-```
 ![Home Page](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531887/Screenshot_2025-04-01_235203_zv8a8d.png)
-![Loading Screen](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531887/Screenshot_2025-04-01_235148_jha9lv.png)
-![Board Page](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531887/Screenshot_2025-04-01_235308_naqrhs.png)
 
-```
+![Loading Screen](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531887/Screenshot_2025-04-01_235148_jha9lv.png)
+
+![Board Page](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531887/Screenshot_2025-04-01_235308_naqrhs.png)
 
 #### 2. **Shape & Text Tools**
 
@@ -102,22 +101,21 @@ BoardShare is an advanced real-time collaborative whiteboard application with ha
   - Applies **Gaussian Blur** and **Thresholding** for noise reduction.
   - Segments characters for better recognition accuracy.
 
-#### Placeholder for ML Model Architecture Diagram
+#### ML Model Architecture Diagram
 
-```
-[IMAGE: Diagram of the CNN + LSTM Model Architecture]
-```
+![CNN + LSTM Model Architecture](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531874/download_ezr58n.png)
 
 ### Character Segmentation
 
 The image below represents how character segmentation is performed before recognition:
 
-```
 ![Character Segments and Their Positions](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531874/download_ezr58n.png)
+
 ![Character Segmentation](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531873/download_6_evqhqh.png)
+
 ![Character Segmentation](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531873/download_3_zsotgg.png)
+
 ![Character Segmentation](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531873/download_4_fq3w4u.png)
-```
 
 ### Prediction Workflow
 
@@ -128,11 +126,9 @@ The image below represents how character segmentation is performed before recogn
 5. Each character is passed through the CNN model for prediction.
 6. The recognized equation is reconstructed and displayed on the frontend.
 
-#### Placeholder for Prediction Flow Diagram
+#### Prediction Flow Diagram
 
-```
 ![Prediction Flow](https://res.cloudinary.com/dq8b6vgab/image/upload/v1743531874/download_ezr58n.png)
-```
 
 ### Deployment
 
