@@ -116,7 +116,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
         const toastId = toast.loading("Processing image...");
         const svgElement = svgRef.current;
         if (svgElement) {
-            const svgData = new XMLSerializer().serializeToString(svgElement!); // Non-null assertion
+            const svgData = new XMLSerializer().serializeToString(svgElement!);
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
 
@@ -138,7 +138,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
                     try {
                         const pngDataUrl = canvas.toDataURL("image/png");
 
-                        const response = await axios.post(`${process.env.REACT_APP_API_URL}/calculate`, {
+                        const response = await axios.post(`https://boardshare.onrender.com/calculate`, {
                             image: pngDataUrl,
                             dict_of_vars: dictOfVars
                         });
