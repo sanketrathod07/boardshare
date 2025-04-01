@@ -138,7 +138,7 @@ export const Canvas = ({ boardId, }: CanvasProps) => {
                     try {
                         const pngDataUrl = canvas.toDataURL("image/png");
 
-                        const response = await axios.post('http://localhost:8900/calculate', {
+                        const response = await axios.post(`${process.env.REACT_APP_API_URL}/calculate`, {
                             image: pngDataUrl,
                             dict_of_vars: dictOfVars
                         });
