@@ -142,7 +142,8 @@ The image below represents how character segmentation is performed before recogn
 
 **BoardShare** was created by:
 
-**Sanket Hanjari Rathod** - [Portfolio](https://sanketrathod.vercel.app)
+**Sanket Hanjari Rathod** - [Portfolio](https://sanketrathod.in)
+**Pratik Kor** - [LinkedIn](www.linkedin.com/in/pratik-kor) [Github](https://github.com/PratikKor)
 
 ---
 
