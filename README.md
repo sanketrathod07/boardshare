@@ -144,7 +144,7 @@ The image below represents how character segmentation is performed before recogn
 
 **Sanket Hanjari Rathod** - [Portfolio](https://sanketrathod.in)
 
-**Pratik Kor** - [LinkedIn](www.linkedin.com/in/pratik-kor) [Github](https://github.com/PratikKor)
+**Pratik Kor** - [LinkedIn](https://www.linkedin.com/in/pratik-kor) [Github](https://github.com/PratikKor)
 
 ---
 
